@@ -30,3 +30,6 @@ frontend/.env
 *.sqlite3
 *.db
 postgres-data/
+
+# TS build info
+*.tsbuildinfo
