@@ -10,7 +10,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routers import auth, dashboard, goals
+from app.api.routers import (
+    analysis, auth, code, codeforces, dashboard, goals, learning,
+    leetcode, plans, progress, recommendations, skills, tutor,
+)
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.db import Base, engine
@@ -42,6 +45,18 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(dashboard.router)
 app.include_router(goals.router)
+app.include_router(codeforces.platforms)
+app.include_router(codeforces.cf)
+app.include_router(skills.router)
+app.include_router(recommendations.router)
+app.include_router(analysis.router)
+app.include_router(learning.router)
+app.include_router(leetcode.platforms)
+app.include_router(leetcode.lc)
+app.include_router(plans.router)
+app.include_router(code.router)
+app.include_router(tutor.router)
+app.include_router(progress.router)
 
 
 @app.get("/health", tags=["meta"])

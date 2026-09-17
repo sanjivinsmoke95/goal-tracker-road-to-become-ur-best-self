@@ -55,14 +55,16 @@ export function DashboardPage() {
         </div>
       )}
 
+      <Insight />
+
       <motion.div
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
         className="mt-6 grid gap-4 lg:grid-cols-2"
       >
-        <PotdCard platform="Codeforces" icon={Swords} status={data?.platforms.codeforces} loading={isLoading} />
-        <PotdCard platform="LeetCode" icon={Code2} status={data?.platforms.leetcode} loading={isLoading} />
+        <DashboardPotd label="Codeforces" icon={Swords} platform="codeforces" connected={data?.platforms.codeforces?.connected} loading={isLoading} />
+        <DashboardPotd label="LeetCode" icon={Code2} platform="leetcode" connected={data?.platforms.leetcode?.connected} loading={isLoading} />
       </motion.div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -78,6 +80,16 @@ export function DashboardPage() {
               <Metric label="Est. CF level" value={data?.skill_snapshot.estimated_cf_rating ?? "—"} />
               <Metric label="Est. LC level" value={data?.skill_snapshot.estimated_lc_level ?? "—"} />
             </div>
+            {data?.skill_snapshot.available && (
+              <div className="mt-3 space-y-1.5 text-xs">
+                {data.skill_snapshot.strong_topics.length > 0 && (
+                  <div><span className="text-emerald-600">Strong:</span> {data.skill_snapshot.strong_topics.join(", ")}</div>
+                )}
+                {data.skill_snapshot.reinforce_topics.length > 0 && (
+                  <div><span className="text-amber-600">Reinforce:</span> {data.skill_snapshot.reinforce_topics.join(", ")}</div>
+                )}
+              </div>
+            )}
           </div>
         </Card>
       </div>
@@ -133,38 +145,64 @@ function StreakBadge({ streak, loading }: { streak: number; loading: boolean }) 
   );
 }
 
-function PotdCard({
-  platform,
-  icon: Icon,
-  status,
-  loading,
-}: {
-  platform: string;
-  icon: typeof Swords;
-  status?: PlatformStatus;
-  loading: boolean;
-}) {
+interface DailyMini {
+  problem: { name: string; rating: number | null; difficulty: string | null; tags: string[]; url: string } | null;
+  explanation: string;
+}
+
+function Insight() {
+  const { data } = useQuery<{ insight: string }>({
+    queryKey: ["tutor-insight"],
+    queryFn: async () => (await api.get<{ insight: string }>("/tutor/insight")).data,
+  });
+  if (!data?.insight) return null;
+  return (
+    <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-sm dark:border-violet-500/30 dark:bg-violet-500/10">
+      <Sparkles className="mt-0.5 h-4 w-4 flex-none text-violet-500" />
+      <span className="text-violet-800 dark:text-violet-200">{data.insight}</span>
+    </div>
+  );
+}
+
+function DashboardPotd({ label, icon: Icon, platform, connected, loading }: { label: string; icon: typeof Swords; platform: string; connected?: boolean; loading: boolean }) {
+  const { data } = useQuery<{ codeforces: DailyMini | null; leetcode: DailyMini | null }>({
+    queryKey: ["potd"],
+    queryFn: async () => (await api.get("/problems/today")).data,
+    enabled: !!connected,
+  });
+  const daily = platform === "codeforces" ? data?.codeforces : data?.leetcode;
+
   return (
     <Card>
-      <CardHeader title={`${platform} · Problem of the Day`} action={<RecommendationTag />} />
+      <CardHeader title={`${label} · Problem of the Day`} action={<RecommendationTag />} />
       <div className="px-4 py-5">
         {loading ? (
           <div className="h-16 animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />
-        ) : status?.connected ? (
-          <p className="text-sm text-zinc-500">Recommendation engine arrives in Milestone 5.</p>
-        ) : (
+        ) : !connected ? (
           <div className="flex items-start gap-3">
             <Icon className="mt-0.5 h-5 w-5 flex-none text-zinc-400" />
             <div>
-              <p className="text-sm font-medium">Connect your {platform} account</p>
-              <p className="mt-0.5 text-sm text-zinc-500">
-                Your Problem of the Day is chosen from your real solving history. Connect a handle to begin.
-              </p>
-              <button className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:underline">
-                <Link2 className="h-3.5 w-3.5" />
-                Connect (Milestone 3)
-              </button>
+              <p className="text-sm font-medium">Connect your {label} account</p>
+              <p className="mt-0.5 text-sm text-zinc-500">Your Problem of the Day comes from your real solving history.</p>
+              <Link to={`/${platform}`} className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:underline">
+                <Link2 className="h-3.5 w-3.5" /> Connect
+              </Link>
             </div>
+          </div>
+        ) : !daily?.problem ? (
+          <p className="text-sm text-zinc-500">No recommendation yet — sync your account.</p>
+        ) : (
+          <div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="text-sm font-semibold">{daily.problem.name}</div>
+              <a href={daily.problem.url} target="_blank" rel="noreferrer" className="shrink-0 text-xs font-medium text-emerald-600 hover:underline">Solve →</a>
+            </div>
+            <div className="mt-1 flex flex-wrap gap-1.5 text-[11px] text-zinc-500">
+              {daily.problem.rating != null && <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono dark:bg-zinc-800">{daily.problem.rating}</span>}
+              {daily.problem.difficulty && <span className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800">{daily.problem.difficulty}</span>}
+              {daily.problem.tags.slice(0, 3).map((t) => <span key={t} className="rounded bg-zinc-100 px-1.5 py-0.5 dark:bg-zinc-800">{t}</span>)}
+            </div>
+            <p className="mt-2 line-clamp-2 text-xs text-zinc-500">{daily.explanation}</p>
           </div>
         )}
       </div>

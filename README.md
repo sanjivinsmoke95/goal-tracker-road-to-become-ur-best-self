@@ -45,17 +45,17 @@ make fe-dev                   # http://localhost:5173
 | # | Milestone | State |
 |---|---|---|
 | **1** | **Project setup + auth + dashboard shell** | ✅ **done & tested** |
-| 2 | Daily goal tracker + streak + animations | ▢ next |
-| 3 | Codeforces integration (API, profile, submissions, problem DB, sync) | ▢ |
-| 4 | Skill engine (topic analysis, difficulty estimation, confidence) | ▢ |
-| 5 | Problem of the Day (deterministic candidate scoring + AI explanation) | ▢ |
-| 6 | Submission AI analysis + historical mistake tracking | ▢ |
-| 7 | Adaptive recommendation engine | ▢ |
-| 8 | Learning system (frontend/backend curriculum, theory, docs, exercises) | ▢ |
-| 9 | Code playground (isolated sandbox) | ▢ |
-| 10 | Schedule upload (CSV/Excel/JSON/PDF) | ▢ |
-| 11 | Adaptive learning plans | ▢ |
-| 12 | LeetCode integration (adapter) | ▢ |
+| 2 | Daily goal tracker + streak + animations | ✅ done |
+| 3 | Codeforces integration (API, profile, submissions, problem DB, sync) | ✅ done |
+| 4 | Skill engine (topic analysis, difficulty estimation, confidence) | ✅ done |
+| 5 | Problem of the Day (deterministic candidate scoring + AI explanation) | ✅ done |
+| 6 | Submission AI analysis + historical mistake tracking | ✅ done |
+| 7 | Adaptive recommendation engine | ✅ done |
+| 8 | Learning system (frontend/backend curriculum, theory, docs, exercises) | ✅ done |
+| 9 | Code playground (isolated sandbox) | ✅ done |
+| 10 | Schedule upload (CSV/Excel/JSON/PDF) | ✅ done |
+| 11 | Adaptive learning plans | ✅ done |
+| 12 | LeetCode integration (adapter) | ✅ done |
 
 ## What Milestone 1 delivered
 - Dockerised monorepo (`backend/`, `frontend/`, `docker-compose.yml`).

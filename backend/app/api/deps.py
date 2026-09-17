@@ -12,6 +12,21 @@ from app.models import User
 bearer = HTTPBearer(auto_error=True)
 
 
+def get_cf_adapter():
+    """The Codeforces adapter. Tests override this to inject a fake, so the
+    network is never touched during the suite."""
+    from app.services.adapters.codeforces import CodeforcesAdapter
+
+    return CodeforcesAdapter()
+
+
+def get_lc_adapter():
+    """The LeetCode adapter. Overridable in tests for the same reason."""
+    from app.services.adapters.leetcode import LeetCodeAdapter
+
+    return LeetCodeAdapter()
+
+
 def get_current_user(
     creds: HTTPAuthorizationCredentials = Depends(bearer),
     db: Session = Depends(get_db),
