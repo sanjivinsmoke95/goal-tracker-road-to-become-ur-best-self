@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routers import auth, dashboard
+from app.api.routers import auth, dashboard, goals
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.db import Base, engine
@@ -41,6 +41,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(dashboard.router)
+app.include_router(goals.router)
 
 
 @app.get("/health", tags=["meta"])

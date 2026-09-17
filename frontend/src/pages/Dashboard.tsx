@@ -1,9 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { Flame, Swords, Code2, Link2, Database, Lightbulb, Sparkles } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Flame, Swords, Code2, Link2, Database, Lightbulb, Sparkles, Plus } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { Card, CardHeader } from "@/components/ui/card";
+import { GoalRow } from "@/components/GoalRow";
+import { useGoals, useToggleGoal } from "@/lib/goals";
 
 interface PlatformStatus {
   connected: boolean;
@@ -63,12 +66,7 @@ export function DashboardPage() {
       </motion.div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader title="Today's Learning" />
-          <div className="px-4 py-6 text-center text-sm text-zinc-500">
-            No goals yet. The goal tracker (Milestone 2) will populate this each morning.
-          </div>
-        </Card>
+        <TodaysLearning />
 
         <Card>
           <CardHeader title="Skill Snapshot" action={<InferenceTag />} />
@@ -86,6 +84,43 @@ export function DashboardPage() {
 
       {data?.provenance && <Provenance provenance={data.provenance} />}
     </div>
+  );
+}
+
+function TodaysLearning() {
+  const { data: goals = [], isLoading } = useGoals();
+  const toggle = useToggleGoal();
+  const done = goals.filter((g) => g.status === "completed").length;
+
+  return (
+    <Card>
+      <CardHeader
+        title="Today's Learning"
+        action={
+          <span className="font-mono text-xs text-zinc-500">
+            {isLoading ? "…" : `${done}/${goals.length}`}
+          </span>
+        }
+      />
+      <div className="space-y-1.5 p-3">
+        {isLoading ? (
+          <div className="h-10 animate-pulse rounded-md bg-zinc-100 dark:bg-zinc-800" />
+        ) : goals.length === 0 ? (
+          <Link
+            to="/goals"
+            className="flex items-center justify-center gap-1.5 rounded-md border border-dashed border-zinc-300 py-6 text-sm text-zinc-500 hover:border-emerald-500 hover:text-emerald-600 dark:border-zinc-700"
+          >
+            <Plus className="h-4 w-4" /> Add today's goals
+          </Link>
+        ) : (
+          <AnimatePresence initial={false}>
+            {goals.map((g) => (
+              <GoalRow key={g.id} goal={g} onToggle={(id) => toggle.mutate(id)} busy={toggle.isPending} />
+            ))}
+          </AnimatePresence>
+        )}
+      </div>
+    </Card>
   );
 }
 

@@ -8,6 +8,8 @@ later milestones (goals, Codeforces sync, skill engine) land.
 
 from pydantic import BaseModel
 
+from app.schemas.goal import GoalRead
+
 
 class PlatformStatus(BaseModel):
     connected: bool
@@ -29,7 +31,8 @@ class DashboardResponse(BaseModel):
     streak: int
     platforms: dict[str, PlatformStatus]
     problem_of_the_day: dict[str, None]  # {"codeforces": None, "leetcode": None} until M5
-    today_goals: list[dict]  # empty until the goal tracker (M2)
+    today_goals: list[GoalRead]  # real goals for today (Milestone 2)
+    today_completed: int = 0
     skill_snapshot: SkillSnapshot
     # Small provenance note the UI shows so estimates are never mistaken for facts.
     provenance: dict[str, str] = {

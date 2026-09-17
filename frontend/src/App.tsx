@@ -5,7 +5,6 @@ import {
   CalendarClock,
   BarChart3,
   GraduationCap,
-  ListChecks,
   CalendarRange,
   TrendingUp,
   Terminal,
@@ -16,6 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Login } from "@/pages/Login";
 import { DashboardPage } from "@/pages/Dashboard";
+import { GoalsPage } from "@/pages/Goals";
 import { Placeholder } from "@/pages/Placeholder";
 import type { ReactNode } from "react";
 
@@ -63,7 +63,7 @@ export function App() {
           <Route path="/learning/react" element={<Placeholder title="Learning · React" milestone="Milestone 8" icon={GraduationCap} description="The React curriculum, from JSX to project architecture." />} />
           <Route path="/learning/backend" element={<Placeholder title="Learning · Backend" milestone="Milestone 8" icon={GraduationCap} description="The backend curriculum, from HTTP to system-design fundamentals." />} />
 
-          <Route path="/goals" element={<Placeholder title="Daily Goals" milestone="Milestone 2" icon={ListChecks} description="Your daily goal tracker with completion, streaks, and quick, professional animations." />} />
+          <Route path="/goals" element={<GoalsPage />} />
           <Route path="/plans" element={<Placeholder title="Learning Plans" milestone="Milestone 10–11" icon={CalendarRange} description="Upload a schedule (CSV / Excel / JSON) or generate an AI plan, then have it adapt to your real progress." />} />
           <Route path="/progress" element={<Placeholder title="Progress" milestone="Milestone 4+" icon={TrendingUp} description="Daily, weekly, and monthly progress charts drawn from your actual stored activity." />} />
           <Route path="/playground" element={<Placeholder title="Code Playground" milestone="Milestone 9" icon={Terminal} description="An isolated, resource-limited sandbox for JS / TS / Python / C++ — code never runs inside the API process." />} />
