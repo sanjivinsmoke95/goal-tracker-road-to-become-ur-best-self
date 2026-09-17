@@ -23,8 +23,14 @@ export function Login({ mode = "login" }: { mode?: "login" | "register" }) {
       else await login(email, password);
       navigate("/dashboard");
     } catch (err) {
-      const ax = err as AxiosError<{ detail?: string }>;
-      setError(ax.response?.data?.detail || "Something went wrong. Please try again.");
+      const detail = (err as AxiosError<{ detail?: unknown }>).response?.data?.detail;
+      const msg =
+        typeof detail === "string"
+          ? detail
+          : Array.isArray(detail)
+            ? (detail[0] as { msg?: string })?.msg ?? "Please check your input."
+            : "Something went wrong. Please try again.";
+      setError(msg);
     } finally {
       setBusy(false);
     }
