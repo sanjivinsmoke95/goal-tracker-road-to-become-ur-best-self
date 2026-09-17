@@ -34,6 +34,16 @@ def _upsert_problem(db: Session, np: NormalizedProblem, cache: dict[str, Problem
     return prob
 
 
+def _reset_platform_submissions(db: Session, user: User, platform: str) -> None:
+    from sqlalchemy import delete
+
+    from app.models import DailyProblem
+
+    db.execute(delete(Submission).where(Submission.user_id == user.id, Submission.platform == platform))
+    db.execute(delete(DailyProblem).where(DailyProblem.user_id == user.id, DailyProblem.platform == platform))
+    db.flush()
+
+
 def sync_codeforces(db: Session, user: User, handle: str, adapter: PlatformAdapter) -> dict:
     now = datetime.now(timezone.utc)
 
@@ -42,6 +52,12 @@ def sync_codeforces(db: Session, user: User, handle: str, adapter: PlatformAdapt
     profile = db.execute(
         select(CodeforcesProfile).where(CodeforcesProfile.user_id == user.id)
     ).scalar_one_or_none()
+
+    # Switching to a different handle must not merge two people's history —
+    # wipe the previous handle's submissions first.
+    if profile is not None and profile.handle.lower() != profile_data.handle.lower():
+        _reset_platform_submissions(db, user, "codeforces")
+
     if profile is None:
         profile = CodeforcesProfile(user_id=user.id, handle=handle)
         db.add(profile)
@@ -185,7 +201,19 @@ def sync_leetcode(db: Session, user: User, handle: str, adapter: PlatformAdapter
 
     now = datetime.now(timezone.utc)
     adapter.fetch_profile(handle)  # validates the handle exists
-    _get_or_create_account(db, user, "leetcode", handle, now)
+    existing = db.execute(
+        select(PlatformAccount).where(PlatformAccount.user_id == user.id, PlatformAccount.platform == "leetcode")
+    ).scalar_one_or_none()
+    if existing is not None and existing.handle.lower() != handle.lower():
+        _reset_platform_submissions(db, user, "leetcode")
+    account = _get_or_create_account(db, user, "leetcode", handle, now)
+
+    # Solved counts by difficulty — reliable even when the recent-AC list is empty.
+    if hasattr(adapter, "fetch_stats"):
+        try:
+            account.meta = adapter.fetch_stats(handle)
+        except Exception:  # noqa: BLE001
+            pass
 
     cache: dict[str, Problem] = {}
     for np in SEED:  # ensure a real candidate corpus exists

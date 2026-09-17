@@ -60,6 +60,18 @@ def pick_daily(db: Session, user: User, platform: str, on_date: date | None = No
 
     profile = skill_engine.compute_for_user(db, user, platform=platform)
     target = reco.adapted_target(profile)
+    # LeetCode's recent-AC list is often empty, so estimate the target from the
+    # solved-count distribution stored on the account when we have no submissions.
+    if platform == "leetcode" and profile.estimated_rating is None:
+        from app.models import PlatformAccount
+        from app.services.adapters.leetcode import blended_rating
+
+        acc = db.execute(
+            select(PlatformAccount).where(PlatformAccount.user_id == user.id, PlatformAccount.platform == "leetcode")
+        ).scalar_one_or_none()
+        br = blended_rating(acc.meta) if acc else None
+        if br:
+            target = br
     solved = _solved_ids(db, user, platform)
 
     rows = list(

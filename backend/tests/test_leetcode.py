@@ -50,3 +50,33 @@ def test_manual_import(client):
     assert r.json()["new_solved"] == 1
     solved = client.get("/leetcode/problems?solved=true", headers=h).json()
     assert "3sum" in {p["external_id"] for p in solved}
+
+
+class FakeLCStats:
+    """A user with solved counts but an empty recent-AC list (LeetCode's usual case)."""
+    platform = "leetcode"
+
+    def fetch_profile(self, handle):
+        return NormalizedProfile(handle=handle)
+
+    def fetch_submissions(self, handle):
+        return []  # recentAcSubmissionList is empty
+
+    def fetch_stats(self, handle):
+        return {"easy": 93, "medium": 93, "hard": 5, "total": 191}
+
+
+def test_leetcode_uses_stats_when_recent_list_empty(client):
+    h = register_and_login(client)
+    app.dependency_overrides[get_lc_adapter] = lambda: FakeLCStats()
+    r = client.post("/platforms/leetcode/connect", json={"handle": "Luffyxboa_171"}, headers=h)
+    assert r.status_code == 200
+
+    profile = client.get("/leetcode/profile", headers=h).json()
+    assert profile["solved"] == 191  # from counts, not the empty recent list
+    assert profile["breakdown"]["medium"] == 93
+    assert profile["estimated_level"] == "Medium"  # blended ~1169
+
+    # LeetCode POTD works off the counts-based level, not defaulting to Easy.
+    lc = client.get("/problems/today", headers=h).json()["leetcode"]
+    assert lc is not None and lc["problem"]["platform"] == "leetcode"

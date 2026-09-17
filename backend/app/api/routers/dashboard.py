@@ -51,10 +51,12 @@ def get_dashboard(
         else PlatformStatus(connected=False, detail="Not connected yet.")
     )
 
-    lc_profile = skill_engine.compute_for_user(db, user, platform="leetcode")
-    lc_level = None
-    if lc_profile.estimated_rating is not None:
-        lc_level = "Easy" if lc_profile.estimated_rating < 1150 else "Medium" if lc_profile.estimated_rating < 1700 else "Hard"
+    from app.services.adapters.leetcode import blended_rating, level_from_rating
+
+    lc_est = (blended_rating(lc_acc.meta) if lc_acc else None) or skill_engine.compute_for_user(
+        db, user, platform="leetcode"
+    ).estimated_rating
+    lc_level = level_from_rating(lc_est)
 
     profile = skill_engine.compute_for_user(db, user, platform="codeforces")
     if profile.estimated_rating is not None or profile.topics:

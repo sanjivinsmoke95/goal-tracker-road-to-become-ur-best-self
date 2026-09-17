@@ -62,19 +62,27 @@ def import_solved(
 
 @lc.get("/profile")
 def profile(db: Session = Depends(get_db), user: User = Depends(get_current_user)) -> dict:
+    from app.services.adapters.leetcode import blended_rating, level_from_rating
+
     acc = db.execute(
         select(PlatformAccount).where(PlatformAccount.user_id == user.id, PlatformAccount.platform == "leetcode")
     ).scalar_one_or_none()
-    solved = db.execute(
+    counts = (acc.meta if acc else None) or {}
+    solved_subs = db.execute(
         select(func.count()).select_from(Submission).where(
             Submission.user_id == user.id, Submission.platform == "leetcode", Submission.verdict == "OK"
         )
     ).scalar_one()
-    est = skill_engine.compute_for_user(db, user, platform="leetcode").estimated_rating
-    level = None
-    if est is not None:
-        level = "Easy" if est < 1150 else "Medium" if est < 1700 else "Hard"
-    return {"connected": acc is not None, "handle": acc.handle if acc else None, "solved": solved, "estimated_level": level}
+    total_solved = counts.get("total") or solved_subs
+    # Prefer the real solved-count distribution; fall back to submission-based.
+    est = blended_rating(counts) or skill_engine.compute_for_user(db, user, platform="leetcode").estimated_rating
+    return {
+        "connected": acc is not None,
+        "handle": acc.handle if acc else None,
+        "solved": total_solved,
+        "breakdown": {"easy": counts.get("easy", 0), "medium": counts.get("medium", 0), "hard": counts.get("hard", 0)},
+        "estimated_level": level_from_rating(est),
+    }
 
 
 @lc.get("/problems", response_model=list[ProblemRead])

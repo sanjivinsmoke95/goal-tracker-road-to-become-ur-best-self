@@ -95,3 +95,17 @@ def test_problems_solved_filter(client):
 def test_sync_requires_connection_first(client):
     h = register_and_login(client)
     assert client.post("/platforms/codeforces/sync", headers=h).status_code == 400
+
+
+def test_switching_handle_resets_submissions(client):
+    h = register_and_login(client)
+    _use_adapter([_sub(1, "1500A", 800, ["impl"], "OK", 1), _sub(2, "1600B", 2000, ["dp"], "OK", 2)])
+    client.post("/platforms/codeforces/connect", json={"handle": "strongcoder"}, headers=h)
+    assert len(client.get("/codeforces/submissions", headers=h).json()) == 2
+
+    # Connect a DIFFERENT handle → the previous person's submissions must be gone.
+    _use_adapter([_sub(9, "1000A", 800, ["impl"], "OK", 3)])
+    client.post("/platforms/codeforces/connect", json={"handle": "newbie"}, headers=h)
+    subs = client.get("/codeforces/submissions", headers=h).json()
+    assert len(subs) == 1
+    assert subs[0]["external_id"] == "9"
