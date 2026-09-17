@@ -1,0 +1,46 @@
+services:
+  db:
+    # pgvector image = stock Postgres 16 + the pgvector extension we need later.
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: learnos
+      POSTGRES_PASSWORD: learnos
+      POSTGRES_DB: learnos
+    ports:
+      - "5433:5432"   # host 5433 to avoid clashing with any local Postgres on 5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U learnos -d learnos"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      # Override the host for the container network.
+      DATABASE_URL: postgresql+psycopg2://learnos:learnos@db:5432/learnos
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  postgres-data:

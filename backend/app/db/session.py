@@ -1,0 +1,26 @@
+"""Engine + session factory. Works for both Postgres and SQLite (tests)."""
+
+from collections.abc import Generator
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, sessionmaker
+
+from app.core.config import settings
+
+_url = settings.database_url
+_connect_args = {"check_same_thread": False} if _url.startswith("sqlite") else {}
+
+engine = create_engine(_url, pool_pre_ping=True, connect_args=_connect_args)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=False)
+
+
+def get_db() -> Generator[Session, None, None]:
+    db = SessionLocal()
+    try:
+        yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        db.close()
