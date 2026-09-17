@@ -8,7 +8,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export function SettingsPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { theme, toggle } = useTheme();
   const { data: cf } = useQuery<{ handle: string } | null>({ queryKey: ["cf-profile"], queryFn: async () => (await api.get("/codeforces/profile")).data });
   const { data: lc } = useQuery<{ connected: boolean; handle: string | null }>({ queryKey: ["lc-profile"], queryFn: async () => (await api.get("/leetcode/profile")).data });
@@ -22,7 +22,6 @@ export function SettingsPage() {
           <div className="space-y-2 p-4 text-sm">
             <Row label="Name" value={user?.full_name || "—"} />
             <Row label="Email" value={user?.email || "—"} />
-            <Button variant="secondary" size="sm" className="mt-2" onClick={logout}>Sign out</Button>
           </div>
         </Card>
 

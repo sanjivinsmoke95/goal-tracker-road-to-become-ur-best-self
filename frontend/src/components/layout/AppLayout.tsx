@@ -14,7 +14,6 @@ import {
   Settings,
   Moon,
   Sun,
-  LogOut,
 } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { useAuth } from "@/lib/auth";
@@ -37,7 +36,7 @@ const NAV = [
 
 export function AppLayout() {
   const { theme, toggle } = useTheme();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -89,13 +88,6 @@ export function AppLayout() {
             >
               {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
               {theme === "dark" ? "Light" : "Dark"}
-            </button>
-            <button
-              onClick={logout}
-              className="flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-              Sign out
             </button>
           </div>
         </div>
