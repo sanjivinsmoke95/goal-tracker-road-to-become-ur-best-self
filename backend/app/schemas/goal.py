@@ -45,6 +45,9 @@ class GoalRead(BaseModel):
     status: Status
     completed_at: datetime | None
     notes: str
+    source: str = "manual"
+    routine_id: str | None = None
+    carried_from: date_type | None = None
     linked_type: str | None
     linked_ref: str | None
 

@@ -1,4 +1,5 @@
 from app.models.goal import Goal
+from app.models.routine import Routine
 from app.models.learning import TopicCompletion
 from app.models.mistake import MistakeOccurrence
 from app.models.plan import LearningPlan, PlanDay, UploadedPlan
@@ -10,6 +11,7 @@ from app.models.user import User
 
 __all__ = [
     "Goal",
+    "Routine",
     "User",
     "PlatformAccount",
     "CodeforcesProfile",

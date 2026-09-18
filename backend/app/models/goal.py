@@ -17,6 +17,8 @@ from app.db.base import Base, TimestampMixin, UUIDMixin
 CATEGORIES = ("cf", "lc", "react", "backend", "cs", "other")
 PRIORITIES = ("low", "medium", "high")
 STATUSES = ("pending", "in_progress", "completed", "skipped")
+# Where a task came from — drives the little badges in the planner.
+SOURCES = ("manual", "upload", "routine", "carried")
 
 
 class Goal(Base, UUIDMixin, TimestampMixin):
@@ -37,6 +39,14 @@ class Goal(Base, UUIDMixin, TimestampMixin):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     notes: Mapped[str] = mapped_column(Text, default="")
+
+    # Planner provenance: how the task got here, which routine spawned it (if any),
+    # and — for a carried-over task — the day it was originally due.
+    source: Mapped[str] = mapped_column(String(16), default="manual", nullable=False)
+    routine_id: Mapped[str | None] = mapped_column(String(36), index=True, nullable=True)
+    # NOTE: the column named `date` above shadows the `date` type inside this
+    # class body, so Optional inference fails here — set nullable explicitly.
+    carried_from: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     # Optional link to a problem or learning topic (populated in later milestones).
     linked_type: Mapped[str | None] = mapped_column(String(16))  # "problem" | "topic"
