@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { DashboardPage } from "@/pages/Dashboard";
+import { PlannerPage } from "@/pages/Planner";
 import { GoalsPage } from "@/pages/Goals";
 import { CodeforcesPage } from "@/pages/Codeforces";
 import { LeetCodePage } from "@/pages/LeetCode";
@@ -36,6 +37,7 @@ export function App() {
         <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/planner" element={<PlannerPage />} />
           <Route path="/codeforces" element={<CodeforcesPage />} />
           <Route path="/codeforces/problems" element={<CodeforcesPage />} />
           <Route path="/codeforces/submissions" element={<CodeforcesPage />} />

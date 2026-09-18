@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import {
   LayoutDashboard,
+  CalendarCheck,
   Swords,
   Code2,
   CalendarClock,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/planner", label: "Daily Planner", icon: CalendarCheck },
   { to: "/codeforces", label: "Codeforces", icon: Swords },
   { to: "/leetcode", label: "LeetCode", icon: Code2 },
   { to: "/problem-of-the-day", label: "Problem of the Day", icon: CalendarClock },

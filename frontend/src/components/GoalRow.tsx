@@ -71,6 +71,17 @@ export function GoalRow({
         <span className="font-mono text-[11px] text-zinc-400">{goal.estimated_minutes}m</span>
       )}
 
+      {goal.source === "carried" && (
+        <span className="rounded border border-orange-400/40 bg-orange-500/10 px-1.5 py-0.5 text-[10px] font-medium text-orange-500">
+          carried
+        </span>
+      )}
+      {goal.source === "routine" && (
+        <span className="rounded border border-indigo-400/40 bg-indigo-500/10 px-1.5 py-0.5 text-[10px] font-medium text-indigo-500">
+          routine
+        </span>
+      )}
+
       <span className={cn("rounded border px-1.5 py-0.5 text-[10px] font-medium", CATEGORY_STYLES[goal.category])}>
         {CATEGORY_LABELS[goal.category]}
       </span>

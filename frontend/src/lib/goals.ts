@@ -16,6 +16,9 @@ export interface Goal {
   status: GoalStatus;
   completed_at: string | null;
   notes: string;
+  source?: "manual" | "upload" | "routine" | "carried";
+  routine_id?: string | null;
+  carried_from?: string | null;
   linked_type: string | null;
   linked_ref: string | null;
 }
