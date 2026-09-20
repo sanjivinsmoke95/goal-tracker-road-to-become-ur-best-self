@@ -48,8 +48,8 @@ export function AppLayout() {
             &gt;_
           </div>
           <div className="leading-tight">
-            <div className="text-sm font-semibold">Learning OS</div>
-            <div className="font-mono text-[11px] text-zinc-500">adaptive</div>
+            <div className="text-sm font-semibold">DevTrack AI</div>
+            <div className="font-mono text-[11px] text-zinc-500">dev learning</div>
           </div>
         </div>
 

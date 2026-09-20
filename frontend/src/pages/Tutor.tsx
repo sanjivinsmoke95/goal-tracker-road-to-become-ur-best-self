@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Bot, Lightbulb, Send } from "lucide-react";
+import { Bot, BookOpen, ExternalLink, Lightbulb, Send } from "lucide-react";
 import { api } from "@/lib/api";
 import { Page, PageHeader } from "@/components/ui/page";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useRagAsk, useRagStatus } from "@/lib/rag";
 
 interface HintResponse { hints: string[]; solution: string | null }
 
@@ -70,7 +71,117 @@ export function TutorPage() {
           </div>
         </Card>
       </div>
+
+      <DocsQA />
     </Page>
+  );
+}
+
+const RAG_TOPICS = ["", "dsa", "javascript", "react", "typescript", "python", "fastapi", "sql", "git"];
+
+function DocsQA() {
+  const [q, setQ] = useState("");
+  const [topic, setTopic] = useState("");
+  const { data: status } = useRagStatus();
+  const ask = useRagAsk();
+
+  function submit() {
+    if (!q.trim()) return;
+    ask.mutate({ question: q.trim(), topic: topic || undefined });
+  }
+
+  return (
+    <Card className="mt-4">
+      <CardHeader
+        title={
+          <span className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" /> Ask the Docs
+            <span className="rounded border border-sky-300 px-1.5 py-0.5 font-mono text-[10px] uppercase text-sky-600 dark:border-sky-500/40 dark:text-sky-400">
+              RAG
+            </span>
+          </span>
+        }
+      />
+      <div className="p-4">
+        <p className="mb-3 text-xs text-zinc-500">
+          Grounded in official documentation (React, MDN, Python, FastAPI, PostgreSQL, Git, cp-algorithms).
+          Answers cite their sources.
+          {status && (
+            <>
+              {" "}
+              <span className="font-mono">{status.indexed_chunks} chunks</span> · embedder{" "}
+              <span className="font-mono">{status.embedder ?? "—"}</span>
+            </>
+          )}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submit()}
+            placeholder="Why is my solution O(n²)? How does useEffect cleanup work?"
+            className="min-w-[200px] flex-1 rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          />
+          <select
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+            className="rounded-md border border-zinc-300 bg-white px-2 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+          >
+            {RAG_TOPICS.map((t) => (
+              <option key={t} value={t}>
+                {t === "" ? "All topics" : t}
+              </option>
+            ))}
+          </select>
+          <Button onClick={submit} disabled={ask.isPending || !q.trim()}>
+            <Send className="h-4 w-4" /> Ask
+          </Button>
+        </div>
+
+        {ask.isError && (
+          <p className="mt-3 text-sm text-red-500">Couldn't reach the docs service. Is the backend running?</p>
+        )}
+        {ask.data && (
+          <div className="mt-4">
+            <div className="mb-2 flex items-center gap-2 text-[11px]">
+              <span
+                className={`rounded border px-1.5 py-0.5 font-mono uppercase ${
+                  ask.data.llm === "retrieval-only"
+                    ? "border-zinc-300 text-zinc-500 dark:border-zinc-700"
+                    : "border-emerald-300 text-emerald-600 dark:border-emerald-500/40 dark:text-emerald-400"
+                }`}
+              >
+                {ask.data.llm}
+              </span>
+              {ask.data.grounded && <span className="text-zinc-400">grounded in {ask.data.sources.length} source(s)</span>}
+            </div>
+            <div className="whitespace-pre-wrap rounded-md bg-zinc-100 px-3 py-2.5 text-sm leading-relaxed dark:bg-zinc-800">
+              {ask.data.answer}
+            </div>
+            {ask.data.sources.length > 0 && (
+              <div className="mt-3">
+                <div className="mb-1.5 text-xs font-medium text-zinc-500">Sources</div>
+                <div className="space-y-1">
+                  {ask.data.sources.map((s, i) => (
+                    <a
+                      key={i}
+                      href={s.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-2 rounded-md border border-zinc-200 px-2.5 py-1.5 text-sm hover:border-emerald-400 hover:bg-emerald-50 dark:border-zinc-800 dark:hover:bg-emerald-500/10"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5 flex-none text-zinc-400" />
+                      <span className="flex-1 truncate">{s.title}</span>
+                      <span className="font-mono text-[11px] text-zinc-400">{s.source}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </Card>
   );
 }
 

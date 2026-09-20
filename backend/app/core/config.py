@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=False, extra="ignore")
 
     # App
-    app_name: str = "Adaptive Learning OS"
+    app_name: str = "DevTrack AI"
     environment: str = "development"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 

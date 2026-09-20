@@ -86,3 +86,19 @@ class GeminiProvider(LLMProvider):
         )
         result = self._json(prompt, None)
         return result if isinstance(result, list) else _stub.generate_plan(ctx)
+
+    def answer_with_context(self, question: str, context: list[dict]) -> str:
+        if not context:
+            return super().answer_with_context(question, context)
+        blocks = "\n\n".join(
+            f"[{i + 1}] {c['title']} ({c['source']})\n{c['content']}" for i, c in enumerate(context)
+        )
+        prompt = (
+            "You are a precise programming tutor. Answer the question USING ONLY the "
+            "documentation passages below. Be concise and concrete. If the passages do "
+            "not cover it, say so honestly. Cite passages inline like [1], [2]. Do not "
+            "invent APIs or URLs.\n\n"
+            f"Question: {question}\n\nPassages:\n{blocks}"
+        )
+        # Deterministic retrieval answer is the fallback if the LLM call fails.
+        return self._text(prompt, super().answer_with_context(question, context))
