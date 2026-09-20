@@ -8,6 +8,9 @@ import os
 
 os.environ.setdefault("DATABASE_URL", "sqlite://")
 os.environ.setdefault("ENVIRONMENT", "test")
+# Tests must be deterministic and offline: force the stub AI provider regardless
+# of any real key configured in a local .env (which pytest would otherwise load).
+os.environ["AI_PROVIDER"] = "stub"
 
 import pytest
 from fastapi.testclient import TestClient

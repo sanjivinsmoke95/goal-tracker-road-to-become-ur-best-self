@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     # AI provider — swappable. Default "stub" so the app runs with no keys.
     ai_provider: str = "stub"  # stub | gemini | openai_compatible
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-3.6-flash"
     openai_base_url: str = ""
     openai_api_key: str = ""
     openai_model: str = ""
