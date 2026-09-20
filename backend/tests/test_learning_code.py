@@ -4,7 +4,9 @@ from tests.conftest import register_and_login
 def test_learning_paths_and_topic(client):
     h = register_and_login(client)
     paths = client.get("/learning/paths", headers=h).json()
-    assert {p["id"] for p in paths["paths"]} == {"react", "backend"}
+    ids = {p["id"] for p in paths["paths"]}
+    # Core paths plus the expanded catalogue (DSA, JS, TS, Python, SQL, Git).
+    assert {"react", "backend", "dsa", "javascript", "typescript", "python", "sql", "git"} <= ids
     assert paths["total"] > 0
 
     t = client.get("/learning/topics/react-usestate", headers=h).json()
