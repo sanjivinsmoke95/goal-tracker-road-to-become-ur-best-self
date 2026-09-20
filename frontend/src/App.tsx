@@ -15,6 +15,7 @@ import { PlansPage } from "@/pages/Plans";
 import { ProgressPage } from "@/pages/Progress";
 import { PlaygroundPage } from "@/pages/Playground";
 import { TutorPage } from "@/pages/Tutor";
+import { ComparePage } from "@/pages/Compare";
 import { SettingsPage } from "@/pages/Settings";
 
 // Single-user app: there is no login. We just wait for the silent local sign-in
@@ -54,6 +55,7 @@ export function App() {
           <Route path="/progress" element={<ProgressPage />} />
           <Route path="/playground" element={<PlaygroundPage />} />
           <Route path="/tutor" element={<TutorPage />} />
+          <Route path="/compare" element={<ComparePage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
 

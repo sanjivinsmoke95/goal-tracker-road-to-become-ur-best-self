@@ -13,6 +13,7 @@ import {
   Terminal,
   Bot,
   Settings,
+  Users,
   Moon,
   Sun,
 } from "lucide-react";
@@ -33,6 +34,7 @@ const NAV = [
   { to: "/progress", label: "Progress", icon: TrendingUp },
   { to: "/playground", label: "Code Playground", icon: Terminal },
   { to: "/tutor", label: "AI Tutor", icon: Bot },
+  { to: "/compare", label: "Compare", icon: Users },
   { to: "/settings", label: "Settings", icon: Settings },
 ];
 

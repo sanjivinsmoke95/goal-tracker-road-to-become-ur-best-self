@@ -11,8 +11,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routers import (
-    analysis, auth, code, codeforces, dashboard, goals, learning,
-    leetcode, planner, plans, progress, rag, recommendations, skills, tutor,
+    analysis, auth, code, codeforces, dashboard, friends, goals, learning,
+    leetcode, planner, plans, preferences, progress, rag, recommendations,
+    skills, tutor,
 )
 from app.core.config import settings
 from app.core.logging import configure_logging
@@ -65,6 +66,8 @@ app.include_router(dashboard.router)
 app.include_router(goals.router)
 app.include_router(planner.router)
 app.include_router(rag.router)
+app.include_router(friends.router)
+app.include_router(preferences.router)
 app.include_router(codeforces.platforms)
 app.include_router(codeforces.cf)
 app.include_router(skills.router)
